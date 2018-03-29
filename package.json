@@ -1,0 +1,96 @@
+{
+    "author": "stosem",
+    "version": "1.0.0",
+    "name": "RandomTimer",
+    "description": "Random Timer",
+    "license": "GPL-3.0",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/stosem/pebble-app-RandomTimer.git"
+    },
+    "keywords": [
+        "pebble-app",
+        "random",
+        "timer"
+    ],
+    "bugs": {
+        "url": "https://github.com/stosem/pebble-app-RandomTimer/issues"
+    },
+    "homepage": "https://github.com/stosem/pebble-app-RandomTimer",
+    "pebble": {
+        "displayName": "RandomTimer",
+        "projectType": "native",
+        "resources": {
+            "media": [
+            {
+            "type": "bitmap",
+            "name": "menu_icon",
+            "file": "icon_app.png",
+            "menuIcon": true,
+            "targetPlatforms": null
+            },
+            {
+            "type": "bitmap",
+            "name": "ICON_MENU",
+            "file": "icon_menu.png"
+            },
+            {
+            "type": "bitmap",
+            "name": "ICON_PLAY",
+            "file": "icon_play.png"
+            },
+            {
+            "type": "bitmap",
+            "name": "ICON_STOP",
+            "file": "icon_stop.png"
+            },
+            {
+            "type": "bitmap",
+            "name": "RND_1",
+            "file": "1.png"
+            },
+            {
+            "type": "bitmap",
+            "name": "RND_2",
+            "file": "2.png"
+            },
+            {
+            "type": "bitmap",
+            "name": "RND_3",
+            "file": "3.png"
+            },
+            {
+            "type": "bitmap",
+            "name": "RND_4",
+            "file": "4.png"
+            },
+            {
+            "type": "bitmap",
+            "name": "RND_5",
+            "file": "5.png"
+            },
+            {
+            "type": "bitmap",
+            "name": "RND_6",
+            "file": "6.png"
+            },
+            {
+            "type": "bitmap",
+            "name": "IMAGE_ALARM",
+            "file": "alarm.png"
+            }
+        ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk",
+            "diorite"
+            ],
+        "uuid": "4d858e6b-a37e-428e-a11c-12fc1539b0c4",
+        "watchapp": {
+            "watchface": false
+        }
+    }
+}
