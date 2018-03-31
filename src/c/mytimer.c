@@ -3,9 +3,6 @@
 
 
 // create clear timer instance
-// start - function is called by timer when it finish. Add some greetings on it
-// finish - function is called by timer when it wants to start. Add start system hw timer here
-//  and in hw timer callback's function please call mytimer_tick() every second. 
 MTimer *mytimer_create( void ) {
     MTimer* my_timer = malloc(sizeof(MTimer));
     my_timer->min_time = 0;
@@ -29,6 +26,9 @@ void mytimer_destroy ( MTimer *my_timer ) {
 
 
 // assign callback functions
+// start - function is called by timer when it finish. Add some greetings on it
+// finish - function is called by timer when it wants to start. Add start system hw timer here
+//  and in hw timer callback's function please call mytimer_tick() every second. 
 void mytimer_set_callback( MTimer *my_timer, void (*ptr_fn_start)(uint16_t), void (*ptr_fn_finish)(void) ) {
     ASSERT( my_timer );
     my_timer->ptr_callback_finish = ptr_fn_finish;
@@ -119,7 +119,7 @@ bool mytimer_is_running( MTimer *my_timer ) {
 void mytimer_set_min( MTimer *my_timer, uint16_t value ) { 
     ASSERT ( my_timer );
     // min can't be > MAX
-    if ( value > TIME_MAX ) value = TIME_MAX;
+    if ( value > TIME_MAX ) value = TIME_MAX-1;
     // min can't be > max
     my_timer->min_time = ( value > my_timer->max_time )?my_timer->max_time:value;
 }; 
@@ -134,6 +134,10 @@ void mytimer_set_max( MTimer *my_timer, uint16_t value ) {
     if ( value > TIME_MAX ) value=TIME_MAX;
     // max can't be < min
     my_timer->max_time = ( value < my_timer->min_time )?my_timer->min_time:value ; 
+    // can't be = min
+    if ( my_timer->max_time == my_timer->min_time ) {
+        my_timer->max_time++;
+    };
 }; 
 
 

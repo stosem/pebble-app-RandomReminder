@@ -44,7 +44,6 @@ static char label_buff[128];
 bool is_menu_changed = false;
 
 
-
 //////////////////// Persistent storage//////////////////// 
 
 // load timer settings
@@ -78,12 +77,12 @@ static void action_performed_callback( ActionMenu *action_menu, const ActionMenu
   switch ( m_id ) {
        case MENU_ID_MIN : 
             window_set_time_show( &window_set_time_callback_set_min, 
-                                mytimer_get_min( mt ), 0, mytimer_get_max( mt ) );
+                                mytimer_get_min( mt ), 0, mytimer_get_max( mt )-1 );
             is_menu_changed = true; // TODO: maybe detect if time realy changed by user, but... 
        break;
        case MENU_ID_MAX:
             window_set_time_show( &window_set_time_callback_set_max, 
-                                mytimer_get_max( mt ), mytimer_get_min( mt ), TIME_MAX ); 
+                                mytimer_get_max( mt ), mytimer_get_min( mt )+1, TIME_MAX ); 
             is_menu_changed = true;
        break;
        case MENU_ID_REPEAT: 
@@ -174,7 +173,7 @@ void app_timer_callback_proc( struct tm *tick_time, TimeUnits units_changed ) {
     // tick soft timer
     mytimer_tick( mt );
     if ( mytimer_is_running( mt ) ) {
-        // xxx: rerun here if you have app_timer
+        // xxx: recreate app_timer here if you use app_timer instead tick_handler
         // make some animation
         window_rnd_animation() ;
     };
@@ -219,7 +218,6 @@ void window_set_time_callback_set_max ( uint16_t value ) {
 };
 
 
-
 //////////////////// Button click //////////////////// 
 // play click 
 static void play_click_handler( ClickRecognizerRef recognizer, void *context ) {
@@ -235,10 +233,11 @@ static void play_click_handler( ClickRecognizerRef recognizer, void *context ) {
   window_update_status();
 }; 
 
+
 // select menu 
 static void menu_click_handler( ClickRecognizerRef recognizer, void *context ) {
   LOG( "select handler" );
-  // recreate menu // TODO: add flag if value changed
+  // recreate menu 
   if ( s_root_level && is_menu_changed ) { 
     action_menu_hierarchy_destroy( s_root_level, NULL, NULL ); 
     action_menu_init();
@@ -342,7 +341,7 @@ static void window_load( Window *window ) {
   mt_load_persist ();
   // refresh callbacks
   mytimer_set_callback( mt, &mt_start_callback_proc, &mt_finish_callback_proc );
-  // make initial tick if it will be paused
+  // resume timer if it runs
   if ( mytimer_is_running( mt ) ) {
       mytimer_resume( mt, time(NULL) ); 
   };
@@ -417,8 +416,8 @@ static void deinit( void ) {
     mytimer_pause( mt, time(NULL) );
     // schedule system wakeup
     time_t wakeup_time = time(NULL) + mt->remaining_time ;
-    wakeup_schedule(wakeup_time, 0, true);
-    LOG("Now %d. Subscribe to wakeup in %d (after %d sec)", (int)time(NULL), (int)wakeup_time, 
+    int32_t wid = wakeup_schedule(wakeup_time, 0, false);
+    LOG("ID=%d Now %d. Subscribe to wakeup in %d (after %d sec)", (int) wid, (int)time(NULL), (int)wakeup_time, 
             (int)(wakeup_time-time(NULL)) );
   };
   mt_save_persist() ;

@@ -1,7 +1,7 @@
+#pragma once
 /// timer functions
 
 #include <pebble.h> // for base types (uint8_t , etc ) can be replaced for porting! 
-
 
 // store timer settings here
 typedef struct MTimer {
@@ -15,8 +15,6 @@ typedef struct MTimer {
     void (*ptr_callback_start)(uint16_t);
 } MTimer;
 
-
-// public function
 
 MTimer *mytimer_create ( void );
 void mytimer_destroy ( MTimer* );
@@ -33,4 +31,3 @@ uint16_t mytimer_get_min ( MTimer* );
 uint16_t mytimer_get_max ( MTimer* );
 bool mytimer_get_repeat ( MTimer* );
 void mytimer_set_repeat ( MTimer*, bool value );
-

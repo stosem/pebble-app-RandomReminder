@@ -16,7 +16,8 @@ enum Mode {
 static uint8_t current_mode = MODE_HOUR;
 
 char char_buff[64]; // for display time
-static uint16_t mtime=0; // store time
+static uint16_t mtime=0; // store new time
+static uint16_t mc_time=0; // store old current time
 static uint16_t mmax=0; // store max 
 static uint16_t mmin=0; // store min
 static NumberWindow *window;
@@ -42,17 +43,17 @@ void window_set_time_deinit( void ) {
 // parameters: ptr fo save function, start value as current time (if set) 
 // minimum time , maximum allowed time
 void window_set_time_show( void (*set_fn_ptr)(uint16_t), uint16_t current_time , uint16_t min, uint16_t max ) {
-    LOG( "window set time show" );
+    LOG( "window set time show with current time=%d, min=%d, max=%d", current_time, min, max );
     current_mode = MODE_HOUR;
-    mtime = current_time;
+    mtime = current_time; //0; // good
+    mc_time = current_time;
     mmax = (max > 0)?max:TIME_MAX;
     mmin = min;
-    LOG( "mode=%d, mtime=%d, min=%d, max=%d", current_mode, mtime, mmin, mmax );
     set_function = set_fn_ptr;
     // prepare for select hour
-	number_window_set_value( window, time_h( mtime ) );
 	number_window_set_min( window, time_h( mmin ) );
 	number_window_set_max( window, time_h( mmax )  ); 
+	number_window_set_value( window, time_h( mc_time ) );
     sntime2str( char_buff, sizeof( char_buff ), mtime, MODE_HOUR );
     strcat( char_buff, "\nset hour" );
 	number_window_set_label( window, char_buff );
@@ -68,11 +69,8 @@ static void selected_callback( NumberWindow *window, void *context ){
     switch ( current_mode ) {
         case MODE_HOUR :
             // get hour + min + sec (maybe mtime already have value)
-            //mtime = (number_window_get_value( window ) * 3600)  + (time_m(mtime) * 60) + time_s(mtime);
-            mtime = (number_window_get_value( window ) * 3600); //  + (time_m(mtime) * 60) + time_s(mtime);
+            mtime = (number_window_get_value( window ) * 3600);
             // prepare for minute
-            // show current time
-	        number_window_set_value( window, time_m( mtime ) );
             tmin=0;
             if ( mtime < mmin) { tmin = time_m ( mmin-mtime ); }
 	        number_window_set_min( window, tmin );
@@ -82,8 +80,11 @@ static void selected_callback( NumberWindow *window, void *context ){
             tmax = ( (mmax-mtime) < 59*60 )?time_m(mmax-mtime):59 ;
             LOG("set mtime=%d, min=%d, max=%d. Set tmin=%d, tmax=%d", mtime, mmin, mmax, tmin, tmax );
         	number_window_set_max( window, tmax );
+            // show current time
+            LOG("current value=%d", time_m( mc_time ) );
+	        number_window_set_value( window, time_m( mc_time ) );
             // show label
-            sntime2str( char_buff, sizeof( char_buff ), mtime, MODE_MIN );
+            sntime2str( char_buff, sizeof( char_buff ), mtime+time_s( mc_time ), MODE_MIN );
             strcat( char_buff, "\nset minute" );
 		    number_window_set_label( window, char_buff );
             // set next mode
@@ -91,11 +92,9 @@ static void selected_callback( NumberWindow *window, void *context ){
         break;
         case MODE_MIN :
             // get new value
-            //mtime = time_h(mtime)*3600 + number_window_get_value( window ) * 60 + time_s(mtime) ;
-            mtime = time_h(mtime)*3600 + number_window_get_value( window ) * 60; // + time_s(mtime) ;
+            mtime = time_h(mtime)*3600 + number_window_get_value( window ) * 60;
             // prepare for second
-    	    number_window_set_value( window, time_s( mtime ) );        
-            // limit by available
+           // limit by available
             tmin=0;
             if ( mtime < mmin) { tmin = ( mmin-mtime ); }
 	        number_window_set_min( window, tmin );
@@ -104,6 +103,8 @@ static void selected_callback( NumberWindow *window, void *context ){
             tmax = ( (mmax-mtime) < 59 )?(mmax-mtime):59 ;
             LOG("set mtime=%d, min=%d, max=%d. Set tmin=%d, tmax=%d", mtime, mmin, mmax, tmin, tmax );
         	number_window_set_max( window, tmax );
+            LOG("current value=%d", time_s( mc_time ) );
+    	    number_window_set_value( window, time_s( mc_time ) );        
             // show label
             sntime2str( char_buff, sizeof( char_buff ), mtime, MODE_SEC );
             strcat( char_buff, "\nset second" );
