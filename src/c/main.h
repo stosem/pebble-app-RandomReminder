@@ -1,10 +1,12 @@
 #pragma once
 
+#include "common.h"
+
 // Menu items
 enum MenuID {
-    MENU_ID_MIN=1,
-    MENU_ID_MAX=2,
-    MENU_ID_REPEAT=3,
+    MENU_ID_NUMBER=1,
+    MENU_ID_START=2,
+    MENU_ID_STOP=3,
     MENU_ID_VIB=4,
     MENU_ID_ABOUT=5
 };
@@ -19,21 +21,11 @@ typedef struct Settings {
     uint8_t vibration_pattern;  // VibID
 } Settings;
 
-
-// persistent storage keys
-#define MTIMER_KEY 1
-#define SETTINGS_KEY 2
-
-static void mt_load_persist( void ) ;
-static void mt_save_persist( void ) ;
-static void mt_config_clear( void ) ;
+static void settings_load_persist( void ) ;
+static void settings_save_persist( void ) ;
+static void settings_clear( void ) ;
 static void action_performed_callback( ActionMenu *action_menu, const ActionMenuItem *action, void *context ) ;
 static void action_menu_init( void ) ;
-void app_timer_callback_proc ( struct tm *tick_time, TimeUnits units_changed ) ; 
-void window_set_time_callback_set_min ( uint16_t value ) ;
-void window_set_time_callback_set_max ( uint16_t value ) ;
-void mt_start_callback_proc ( uint16_t num ) ;
-void mt_finish_callback_proc ( void ) ;
 static void menu_click_handler( ClickRecognizerRef recognizer, void *context ) ;
 static void play_click_handler( ClickRecognizerRef recognizer, void *context ) ;
 static void click_config_provider( void *context ) ;

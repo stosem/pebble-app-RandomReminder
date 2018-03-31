@@ -8,6 +8,7 @@ build:
 clean:
 	rm -Rf bin
 	yes | pebble clean
+	pebble wipe
 
 wipe:
 	yes | pebble wipe

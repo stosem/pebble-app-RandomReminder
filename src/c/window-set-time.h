@@ -1,6 +1,8 @@
 #pragma once
 #include "pebble.h"
 
+#define TIME_MAX 24*60
+
 static void selected_callback( NumberWindow *window, void *context );
 void window_set_time_init( void );
 void window_set_time_deinit( void );

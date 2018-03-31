@@ -1,24 +1,26 @@
 {
     "author": "stosem",
     "version": "1.0.0",
-    "name": "RandomTimer",
-    "description": "Random Timer",
+    "name": "RandomReminder",
+    "description": "Random Reminder",
     "license": "GPL-3.0",
     "repository": {
         "type": "git",
-        "url": "git://github.com/stosem/pebble-app-RandomTimer.git"
+        "url": "git://github.com/stosem/pebble-app-RandomReminder.git"
     },
     "keywords": [
         "pebble-app",
         "random",
-        "timer"
+        "timer",
+        "alarm",
+        "reminder"
     ],
     "bugs": {
-        "url": "https://github.com/stosem/pebble-app-RandomTimer/issues"
+        "url": "https://github.com/stosem/pebble-app-RandomReminder/issues"
     },
-    "homepage": "https://github.com/stosem/pebble-app-RandomTimer",
+    "homepage": "https://github.com/stosem/pebble-app-RandomReminder",
     "pebble": {
-        "displayName": "RandomTimer",
+        "displayName": "RandomReminder",
         "projectType": "native",
         "resources": {
             "media": [
@@ -46,36 +48,6 @@
             },
             {
             "type": "bitmap",
-            "name": "RND_1",
-            "file": "1.png"
-            },
-            {
-            "type": "bitmap",
-            "name": "RND_2",
-            "file": "2.png"
-            },
-            {
-            "type": "bitmap",
-            "name": "RND_3",
-            "file": "3.png"
-            },
-            {
-            "type": "bitmap",
-            "name": "RND_4",
-            "file": "4.png"
-            },
-            {
-            "type": "bitmap",
-            "name": "RND_5",
-            "file": "5.png"
-            },
-            {
-            "type": "bitmap",
-            "name": "RND_6",
-            "file": "6.png"
-            },
-            {
-            "type": "bitmap",
             "name": "IMAGE_ALARM",
             "file": "alarm.png"
             }
@@ -88,7 +60,7 @@
             "chalk",
             "diorite"
             ],
-        "uuid": "4d858e6b-a37e-428e-a11c-12fc1539b0c4",
+        "uuid": "7a237684-3244-472e-8a4a-1360d8acc6d8",
         "watchapp": {
             "watchface": false
         }

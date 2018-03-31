@@ -30,6 +30,7 @@ src/windows/win-vibrate.c
 */
 
 #include <pebble.h>
+#include "common.h"
 
 static void click_config_provider(Window* window);
 static void click_handler(ClickRecognizerRef recognizer, void* context);
@@ -41,10 +42,12 @@ static void vibe_timer_callback(void* data);
 static Window* window;
 static BitmapLayer* bmp_layer;
 static GBitmap *bmp=NULL;
+static TextLayer *s_label_layer=NULL;
 static AppTimer* vibe_timer = NULL;
 static bool is_visible = false;
 
 static uint8_t num_vibrate = 0;
+static uint8_t num_timer = 0;
 #define MAX_VIBRATE 60
 
 void window_vibrate_init(void) {
@@ -64,11 +67,23 @@ void window_vibrate_init(void) {
   bitmap_layer_set_compositing_mode( bmp_layer, GCompOpSet );
   bitmap_layer_set_bitmap( bmp_layer, bmp );
   layer_add_child( window_get_root_layer(window) , bitmap_layer_get_layer( bmp_layer ));
+  s_label_layer = text_layer_create( GRect( 6, PBL_IF_ROUND_ELSE(24,4), 128, 64));
+  text_layer_set_font( s_label_layer, fonts_get_system_font( FONT_KEY_GOTHIC_18 ) );
+  text_layer_set_text_color(s_label_layer, GColorBlack);
+  text_layer_set_background_color(s_label_layer, GColorClear);
+  text_layer_set_text_alignment(s_label_layer, GTextAlignmentCenter);
+  text_layer_set_text( s_label_layer, "Random Reminder" );
+  layer_add_child( window_get_root_layer(window), text_layer_get_layer( s_label_layer ));
+#if defined(PBL_ROUND)
+  text_layer_enable_screen_text_flow_and_paging(s_label_layer, 2 );
+#endif
 };
 
 
-void window_vibrate_show(void) {
-  num_vibrate = MAX_VIBRATE;
+// show vibrate window num to vibrate or 0 for MAX
+void window_vibrate_show( uint16_t num ) {
+  num_vibrate = (num>0)?num:MAX_VIBRATE;
+  num_timer = MAX_VIBRATE; // timer for show window
   if (window_stack_contains_window(window)) {
     return;
   }
@@ -82,6 +97,7 @@ void window_vibrate_deinit(void) {
   bmp = NULL;
   };
   bitmap_layer_destroy(bmp_layer);
+  text_layer_destroy( s_label_layer );
   window_destroy(window);
 };
 
@@ -120,19 +136,23 @@ void window_disappear(Window* window) {
 
 
 void do_vibrate(void) {
-  num_vibrate--;
-  // max reach
-  if ( num_vibrate <= 1 ) {
+  if ( num_vibrate > 0 ) {
+    vibes_long_pulse();
+    num_vibrate--;
+  };
+  if ( num_timer < 1 ) {
     // close window
     window_stack_pop(true);
   } else {
-  vibes_long_pulse();
-  vibe_timer = app_timer_register(1000, vibe_timer_callback, NULL);
+    vibe_timer = app_timer_register(1000, vibe_timer_callback, NULL);
   };
 };
 
 
 void vibe_timer_callback(void* data) {
   vibe_timer = NULL;
+  num_timer--;
+  LOG("vibe callback %d", num_timer);
+  // max reach
   do_vibrate();
 };

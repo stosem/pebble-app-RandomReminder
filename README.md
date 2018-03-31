@@ -1,8 +1,10 @@
-RandomTimer. 
-Countdown timer with random interval.
-Useful for board or party games (like hot potato) with reaction. Also may used in some other practice where you need a countdown that will expire after a randomized amount of time and without the knowing how much time is remaining.
-You can set:
-- Minimum and Maximum time values, that will be used when randomly picking a starting and ending time.
+RandomReminder.
+You can set up to 8 remindes in a day which will be happend in random time on specified period.
+It useful for remind for drink enough of water in a day, step away from computer, maintaine continuous mindfulness, or many other kinds of practice. 
+Last reminder event will schedule alarms for next day.
+
+Options:
+- Number of remindes on period.
+- Custom period (start / stop time).
 - Vibration pattern ( once or solid ).
-- Auto repeat (relaunch timer) after time remaining.
 Support rectangle and round display.

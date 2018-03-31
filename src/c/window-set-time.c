@@ -1,8 +1,6 @@
 #include "pebble.h"
 #include "window-set-time.h"
 #include "common.h"
-#include "mytimer.h"
-
 
 //////////////////// Local variables 
 
@@ -10,7 +8,6 @@
 enum Mode {
     MODE_HOUR=1,
     MODE_MIN=2,
-    MODE_SEC=3
 };
 // start from HOUR
 static uint8_t current_mode = MODE_HOUR;
@@ -54,7 +51,7 @@ void window_set_time_show( void (*set_fn_ptr)(uint16_t), uint16_t current_time ,
 	number_window_set_min( window, time_h( mmin ) );
 	number_window_set_max( window, time_h( mmax )  ); 
 	number_window_set_value( window, time_h( mc_time ) );
-    sntime2str( char_buff, sizeof( char_buff ), mtime, MODE_HOUR );
+    sntime2str_hm( char_buff, sizeof( char_buff ), mtime, MODE_HOUR );
     strcat( char_buff, "\nset hour" );
 	number_window_set_label( window, char_buff );
 	window_stack_push( number_window_get_window( window ), true );
@@ -69,7 +66,7 @@ static void selected_callback( NumberWindow *window, void *context ){
     switch ( current_mode ) {
         case MODE_HOUR :
             // get hour + min + sec (maybe mtime already have value)
-            mtime = (number_window_get_value( window ) * 3600);
+            mtime = (number_window_get_value( window ) * 60);
             // prepare for minute
             tmin=0;
             if ( mtime < mmin) { tmin = time_m ( mmin-mtime ); }
@@ -77,14 +74,14 @@ static void selected_callback( NumberWindow *window, void *context ){
             // preserve uint overflow
             if ( mtime > mmax ) mtime = mmax ;
             // available minutes = left minutes or 59 if greater
-            tmax = ( (mmax-mtime) < 59*60 )?time_m(mmax-mtime):59 ;
+            tmax = ( (mmax-mtime) < 59 )?time_m(mmax-mtime):59 ;
             LOG("set mtime=%d, min=%d, max=%d. Set tmin=%d, tmax=%d", mtime, mmin, mmax, tmin, tmax );
         	number_window_set_max( window, tmax );
             // show current time
             LOG("current value=%d", time_m( mc_time ) );
 	        number_window_set_value( window, time_m( mc_time ) );
             // show label
-            sntime2str( char_buff, sizeof( char_buff ), mtime+time_s( mc_time ), MODE_MIN );
+            sntime2str_hm( char_buff, sizeof( char_buff ), mtime, MODE_MIN );
             strcat( char_buff, "\nset minute" );
 		    number_window_set_label( window, char_buff );
             // set next mode
@@ -92,9 +89,10 @@ static void selected_callback( NumberWindow *window, void *context ){
         break;
         case MODE_MIN :
             // get new value
-            mtime = time_h(mtime)*3600 + number_window_get_value( window ) * 60;
+            LOG(" user input %d", (int) number_window_get_value( window ) );
+            mtime = time_h(mtime)*60 + number_window_get_value( window ) ;
             // prepare for second
-           // limit by available
+            // limit by available
             tmin=0;
             if ( mtime < mmin) { tmin = ( mmin-mtime ); }
 	        number_window_set_min( window, tmin );
@@ -102,28 +100,13 @@ static void selected_callback( NumberWindow *window, void *context ){
             if ( mtime > mmax ) mtime = mmax ;
             tmax = ( (mmax-mtime) < 59 )?(mmax-mtime):59 ;
             LOG("set mtime=%d, min=%d, max=%d. Set tmin=%d, tmax=%d", mtime, mmin, mmax, tmin, tmax );
-        	number_window_set_max( window, tmax );
-            LOG("current value=%d", time_s( mc_time ) );
-    	    number_window_set_value( window, time_s( mc_time ) );        
-            // show label
-            sntime2str( char_buff, sizeof( char_buff ), mtime, MODE_SEC );
-            strcat( char_buff, "\nset second" );
-		    number_window_set_label( window, char_buff );
-            // set next mode
-			current_mode++;
-		break;
-        case MODE_SEC :		
-            // get new value
-            mtime = time_h(mtime)*3600 + time_m(mtime)*60 + number_window_get_value( window ) ;
-            // log to me :)
-            LOG( "time set to %d", mtime );
-            // update value
+             // update value
             if ( set_function ) { 
                 (*set_function)( mtime ); /// Call function by pointer, defined on show window
             };
             // close window
 			window_stack_pop(true);
-        break;
+		break;
         default:
             LOG("ERROR: Unknown select time mode %d", current_mode );
         break;
