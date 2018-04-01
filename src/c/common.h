@@ -4,7 +4,7 @@
 //
 /////////////////////
 
-//#define DEBUG 1
+#define DEBUG 1
 
 // persistent storage keys
 #define MREMINDER_KEY 1

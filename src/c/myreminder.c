@@ -60,7 +60,8 @@ static time_t myreminder_rnd( time_t start, time_t stop ) {
     t = start + (rand() % ((stop-start)/60) )*60 ; 
     LOG("rnd=%d", (unsigned int) t );
     for ( i=0; i<mr.n_wakeups_set; i++ ) {
-        if ( mr.a_wakeups_time[i] == t ) {
+        // if already exist in array or scheduled
+        if ( ( mr.a_wakeups_time[i] == t ) || ( wakeup_query( t, NULL ) ) ) {
             is_exist=true;
         };
     };
@@ -82,8 +83,8 @@ static void myreminder_set_rnd_wakeups( uint8_t number, uint8_t day_after ) {
     LOG("mr generating %d events for %d day", number, day_after );
     uint8_t i=0;
     WakeupId twid=0;
-
     mr.n_wakeups_scheduled=0;
+
     for ( i=0; i< number; i++ ) {
         // detect period
         static time_t temp;
@@ -106,6 +107,11 @@ static void myreminder_set_rnd_wakeups( uint8_t number, uint8_t day_after ) {
         tm_time->tm_sec=0;
         static time_t ttstop;
         ttstop = mktime( tm_time );
+        // try set for today
+        if ( ( time(NULL) > ttstart ) && ( time(NULL) < ttstop ) ) { ttstart = time(NULL) ; };
+        // if can't set all for today, you need set it for tomorrow
+        if ( (time(NULL)+number*2*60) > ttstop ) return;
+        // get rnd
         time_t rnd_timestamp = myreminder_rnd( ttstart, ttstop );
         LOG("RND generated timestam=%ld (%ld-%ld)", rnd_timestamp, ttstart, ttstop);
         twid = wakeup_schedule( rnd_timestamp, 0, false );
@@ -129,7 +135,7 @@ void myreminder_start( void ) {
     LOG("mr start %d reminds!", n);
     myreminder_cancel_wakeups(); 
     myreminder_set_rnd_wakeups( n , 0 );
-    // make for tomorrow
+    // if can't set all for today make it for tomorrow
     if ( mr.n_wakeups_scheduled != mr.n_wakeups_set ) {
         //myreminder_cancel_wakeups(); // if clear - remove all for today 
         LOG("not scheduled, regenerate for tommorow"); 

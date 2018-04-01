@@ -136,7 +136,7 @@ void window_disappear(Window* window) {
 
 
 void do_vibrate(void) {
-  if ( num_vibrate > 0 ) {
+  if (( num_vibrate > 0 ) && (! quiet_time_is_active() )) {
     vibes_long_pulse();
     num_vibrate--;
   };

@@ -36,6 +36,7 @@ static char start_buff[64];
 static char stop_buff[64];
 static char num_buff[64];
 static char vib_buff[64];
+static char glance_buff[64];
 static char label_buff[128];
 static char status_buff[128];
 static bool is_menu_changed = false;
@@ -226,6 +227,30 @@ static void layer_update_proc_main( Layer *layer, GContext *ctx ) {
 };
 
 
+// app glance callback
+static void update_app_glance(AppGlanceReloadSession *session, size_t limit, void *context) {
+  LOG("Update app_glance");
+  if (limit < 1) return;
+    time_t t = time_start_of_today();
+    struct tm* t_tm = gmtime(&t);
+    t_tm->tm_mday++;
+    time_t expiration_time = mktime(t_tm);
+    snprintf( glance_buff, sizeof( glance_buff ), "%s: %d/%d", myreminder_is_enabled()?"Enabled":"Disabled",
+                                                   myreminder_get_scheduled(), myreminder_get_number() );
+    const AppGlanceSlice entry = (AppGlanceSlice) {
+      .layout = {
+        .icon = PUBLISHED_ID_menu_icon,
+        .subtitle_template_string = glance_buff
+      },
+      .expiration_time = expiration_time
+    };
+    const AppGlanceResult result = app_glance_add_slice(session, entry);
+    if (result != APP_GLANCE_RESULT_SUCCESS) {
+      LOG("AppGlance Error: %d", result);
+    }
+}
+
+
 //////////////////// Main Window ////////////////////   
 
 // window load
@@ -358,6 +383,8 @@ static void deinit( void ) {
   // save settings
   myreminder_deinit();
   settings_save_persist() ;
+  // update glance
+  app_glance_reload( update_app_glance, NULL );
 };
 
 
