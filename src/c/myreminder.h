@@ -36,6 +36,7 @@ uint8_t myreminder_get_scheduled( void ) ;
 uint8_t myreminder_get_left( void ) ;
 uint16_t myreminder_get_start( void ) ; 
 uint16_t myreminder_get_stop( void ) ;
+time_t myreminder_get_next_wakeup_time( void ) ;
 // private
 static void myreminder_cancel_wakeups( void ) ;
 static void myreminder_set_rnd_wakeups( uint8_t number, uint8_t day_after ) ;

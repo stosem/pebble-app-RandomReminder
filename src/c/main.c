@@ -229,14 +229,14 @@ static void layer_update_proc_main( Layer *layer, GContext *ctx ) {
 
 // app glance callback
 static void update_app_glance(AppGlanceReloadSession *session, size_t limit, void *context) {
-  LOG("Update app_glance");
-  if (limit < 1) return;
-    time_t t = time_start_of_today();
-    struct tm* t_tm = gmtime(&t);
-    t_tm->tm_mday++;
-    time_t expiration_time = mktime(t_tm);
+    if (limit < 1) return;
+    strcpy( glance_buff, "" );
+    time_t expiration_time = myreminder_get_next_wakeup_time();
+    if (expiration_time == 0 ) return;
+
     snprintf( glance_buff, sizeof( glance_buff ), "%s: %d/%d", myreminder_is_enabled()?"Enabled":"Disabled",
-                                                   myreminder_get_scheduled(), myreminder_get_number() );
+                                                   myreminder_get_left(), myreminder_get_scheduled() );
+    LOG("Update app_glance status %s till %ld", glance_buff, expiration_time );
     const AppGlanceSlice entry = (AppGlanceSlice) {
       .layout = {
         .icon = PUBLISHED_ID_menu_icon,

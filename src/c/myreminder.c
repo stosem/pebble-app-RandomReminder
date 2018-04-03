@@ -61,7 +61,7 @@ static time_t myreminder_rnd( time_t start, time_t stop ) {
     LOG("rnd=%d", (unsigned int) t );
     for ( i=0; i<mr.n_wakeups_set; i++ ) {
         // if already exist in array or scheduled
-        if ( ( mr.a_wakeups_time[i] == t ) || ( wakeup_query( t, NULL ) ) ) {
+        if ( mr.a_wakeups_time[i] == t ) {
             is_exist=true;
         };
     };
@@ -137,10 +137,27 @@ void myreminder_start( void ) {
     myreminder_set_rnd_wakeups( n , 0 );
     // if can't set all for today make it for tomorrow
     if ( mr.n_wakeups_scheduled != mr.n_wakeups_set ) {
-        //myreminder_cancel_wakeups(); // if clear - remove all for today 
+        myreminder_cancel_wakeups(); // if clear - remove all for today 
         LOG("not scheduled, regenerate for tommorow"); 
         myreminder_set_rnd_wakeups( n , 1 );
     };
+};
+
+
+// return fist scheduled time
+time_t myreminder_get_next_wakeup_time( void ) {
+	bool found=false;
+    time_t t = time(NULL);
+    struct tm* t_tm = localtime(&t);
+    t_tm->tm_mday++;
+    time_t res = mktime(t_tm);
+    for ( uint8_t i=0; i < mr.n_wakeups_set ; i++ ) {
+        if ( ( mr.a_wakeups_time[i] > time( NULL )) &&  ( mr.a_wakeups_time[i] < res ) ) {
+            res = mr.a_wakeups_time[i];
+			found=true;
+        };
+    };
+    return found?res:0;
 };
 
 
